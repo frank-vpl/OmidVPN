@@ -9,14 +9,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/code3-dev/OmidVPN/releases">
-    <img src="https://img.shields.io/github/downloads/code3-dev/OmidVPN/total.svg?style=flat-square" alt="GitHub All Releases">
+  <a href="https://github.com/frank-vpl/OmidVPN/releases">
+    <img src="https://img.shields.io/github/downloads/frank-vpl/OmidVPN/total.svg?style=flat-square" alt="GitHub All Releases">
   </a>
-  <a href="https://github.com/code3-dev/OmidVPN/issues">
-    <img src="https://img.shields.io/github/issues/code3-dev/OmidVPN?style=flat-square" alt="GitHub Issues">
+  <a href="https://github.com/frank-vpl/OmidVPN/issues">
+    <img src="https://img.shields.io/github/issues/frank-vpl/OmidVPN?style=flat-square" alt="GitHub Issues">
   </a>
-  <a href="https://github.com/code3-dev/OmidVPN/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/code3-dev/OmidVPN?style=flat-square" alt="GitHub">
+  <a href="https://github.com/frank-vpl/OmidVPN/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/frank-vpl/OmidVPN?style=flat-square" alt="GitHub">
   </a>
 </p>
 
@@ -37,7 +37,7 @@ OmidVPN is a simple, lightweight, and secure OpenVPN client for Android that all
 
 ## 🚀 Installation
 
-1. Download the latest APK from the [Releases](https://github.com/code3-dev/OmidVPN/releases) page
+1. Download the latest APK from the [Releases](https://github.com/frank-vpl/OmidVPN/releases) page
 2. Enable "Install from Unknown Sources" in your device settings
 3. Open and install the downloaded APK file
 4. Grant necessary permissions when prompted
@@ -103,4 +103,4 @@ Contributions are welcome! Feel free to submit pull requests or open issues for 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
 ---
-<p align="center">Made with ❤️ by <a href="https://github.com/code3-dev">Hossein Pira</a></p>
+<p align="center">Made with ❤️ by <a href="https://github.com/frank-vpl">Hossein Pira</a></p>

@@ -3,13 +3,19 @@ name: Build and Release APKs
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
+
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to create release for (e.g., v1.0.0)'
+        description: "Select the version to build and release"
         required: true
-        default: 'v1.0.0'
+        type: choice
+        default: "v1.0.0"
+        options:
+          - "v1.0.0"
+          - "v1.1.0"
+          - "v1.2.0"
 
 jobs:
   build:
@@ -21,13 +27,13 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: "zulu"
+          java-version: "17"
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       - name: Decode Keystore
         run: |

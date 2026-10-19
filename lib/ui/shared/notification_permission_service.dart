@@ -1,7 +1,7 @@
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:notification_permissions/notification_permissions.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:omidvpn/ui/shared/widgets/notification_permission_dialog.dart';
 
 class NotificationPermissionService {
@@ -13,7 +13,7 @@ class NotificationPermissionService {
     
     try {
       // First, try to use the notification_permissions package
-      final permissionStatus = await NotificationPermissions.getNotificationPermissionStatus();
+      final permissionStatus = await Permission.notification.status;
       return permissionStatus == PermissionStatus.granted;
     } catch (e) {
       // Fallback to the native implementation
@@ -32,7 +32,7 @@ class NotificationPermissionService {
     
     try {
       // First, try to use the notification_permissions package
-      final permissionStatus = await NotificationPermissions.getNotificationPermissionStatus();
+      final permissionStatus = await Permission.notification.status;
       
       if (permissionStatus == PermissionStatus.granted) {
         return true;
@@ -48,7 +48,7 @@ class NotificationPermissionService {
         }
         
         // Request notification permission
-        final result = await NotificationPermissions.requestNotificationPermissions();
+        final result = await Permission.notification.request();
         return result == PermissionStatus.granted;
       }
     } catch (e) {

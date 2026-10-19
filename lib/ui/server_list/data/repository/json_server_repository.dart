@@ -73,13 +73,16 @@ class JsonServerRepository implements VpnRepository {
       return uniqueCachedServers.values.toList();
     }
 
-    // Check if user is continuing without license
-    final prefs = await SharedPreferences.getInstance();
-    final continueWithoutLicense = prefs.getBool('continue_without_license') ?? false;
-    final licenseKey = prefs.getString('premium_license_key');
+
 
     // Fetch data from primary source
-    final List<dynamic> primaryData = await remoteSource.getServerList();
+    final List<dynamic> primaryData;
+    try {
+      primaryData = await remoteSource.getServerList();
+    } catch (e) {
+      // Re-throw the exception so it can be caught by the Riverpod AsyncValue error state
+      throw e;
+    }
     
     // Fetch data from additional sources
     List<ServerInfo> combinedServers = [];
@@ -89,47 +92,10 @@ class JsonServerRepository implements VpnRepository {
       JsonServerListMapper.fromJson(jsonData: primaryData, isPremiumSource: false)
     );
     
-    // Only add premium servers if user has a license or hasn't chosen to continue without one
-    if (licenseKey != null && licenseKey.isNotEmpty) {
-      // If license exists, add the premium server source
-      try {
-        final premiumSource = JsonServerRemoteSource(
-          dio: remoteSource.dio, // Use the same dio instance
-          baseURL:
-              'https://raw.githubusercontent.com/code3-dev/omidvpn-api/refs/heads/master/api/$licenseKey/index.json',
-        );
-        final additionalData = await premiumSource.getServerList();
-        // Add premium servers with the premium flag set to true
-        combinedServers.addAll(
-          JsonServerListMapper.fromJson(jsonData: additionalData, isPremiumSource: true)
-        );
-      } catch (e) {
-        // Continue without premium servers if there's an error
-        print('Error fetching premium servers: $e');
-      }
-    } else if (!continueWithoutLicense) {
-      // If user hasn't made a choice about continuing without license,
-      // we still try to load premium servers (for backward compatibility)
-      try {
-        final premiumSource = JsonServerRemoteSource(
-          dio: remoteSource.dio, // Use the same dio instance
-          baseURL:
-              'https://raw.githubusercontent.com/code3-dev/omidvpn-api/refs/heads/master/api/$licenseKey/index.json',
-        );
-        final additionalData = await premiumSource.getServerList();
-        // Add premium servers with the premium flag set to true
-        combinedServers.addAll(
-          JsonServerListMapper.fromJson(jsonData: additionalData, isPremiumSource: true)
-        );
-      } catch (e) {
-        // Continue without premium servers if there's an error
-        print('Error fetching premium servers: $e');
-      }
-    }
+
     // If continueWithoutLicense is true, we don't load premium servers
     
-    // Also include any additional sources passed in constructor (only if not continuing without license)
-    if (!continueWithoutLicense) {
+    // Also include any additional sources passed in constructor
       for (final source in additionalSources) {
         try {
           final additionalData = await source.getServerList();
@@ -142,7 +108,6 @@ class JsonServerRepository implements VpnRepository {
           continue;
         }
       }
-    }
     
     // Deduplicate servers based on hostname to prevent duplicates
     final Map<String, ServerInfo> uniqueServers = {};

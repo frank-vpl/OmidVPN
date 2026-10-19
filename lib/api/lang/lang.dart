@@ -5,6 +5,10 @@ abstract class Lang {
   String get connect;
   String get disconnect;
   String get selectServer;
+  String get connectButton;
+  String get disconnectButton;
+  String get selectServerToConnect;
+  String get pleaseSelectServer;
 
   String get serverListTitle;
   String get sessions;

@@ -1,4 +1,8 @@
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:installed_apps/installed_apps.dart';
+import 'package:installed_apps/app_info.dart';
 
 class BypassApp {
   final String name;
@@ -53,15 +57,25 @@ class BypassAppsState {
 }
 
 class BypassAppsNotifier extends StateNotifier<BypassAppsState> {
-  BypassAppsNotifier()
-    : super(
-        BypassAppsState(
-          allApps: [],
-          selectedAppPackages: [],
-          isLoading: false,
-          searchQuery: '',
-        ),
-      );
+  BypassAppsNotifier() : super(BypassAppsState(allApps: [], selectedAppPackages: [], isLoading: true, searchQuery: '',)) {
+    _init();
+  }
+
+  Future<void> _init() async {
+    if (Platform.isAndroid) {
+      final List<AppInfo> installedApps = await InstalledApps.getInstalledApps(withIcon: true);
+      final List<BypassApp> apps = installedApps.map((app) => BypassApp(
+        name: app.name,
+        packageName: app.packageName,
+        icon: app.icon != null ? base64Encode(app.icon!) : '', // Convert Uint8List to base64 String
+        isSystemApp: app.isSystemApp ?? false,
+      )).toList();
+      state = state.copyWith(allApps: apps, isLoading: false);
+    } else {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
 
   void setSearchQuery(String query) {
     state = state.copyWith(searchQuery: query);

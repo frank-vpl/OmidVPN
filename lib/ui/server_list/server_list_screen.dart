@@ -62,6 +62,7 @@ class ServerListScreen extends ConsumerWidget
               AsyncError<List<ServerInfo>>(:final error) => Center(
                 child: Text(error.toString()),
               ),
+              _ => const SizedBox.shrink(), // Handles any other AsyncValue states
             },
           ),
         ],

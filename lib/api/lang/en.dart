@@ -20,6 +20,18 @@ class LangEN implements Lang {
   String get selectServer => 'Select Server';
 
   @override
+  String get connectButton => 'Connect';
+
+  @override
+  String get disconnectButton => 'Disconnect';
+
+  @override
+  String get selectServerToConnect => 'Please select a server to connect';
+
+  @override
+  String get pleaseSelectServer => 'Please select a server to connect';
+
+  @override
   String get serverListTitle => 'Server List';
 
   @override

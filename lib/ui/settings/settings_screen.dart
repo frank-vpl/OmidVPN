@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:omidvpn/api/api/api.dart';
 import 'package:omidvpn/ui/about/about_screen.dart';
 import 'package:omidvpn/ui/bypass_apps/bypass_apps_screen.dart';
-import 'package:omidvpn/ui/license/license_screen.dart';
+
 import 'package:omidvpn/ui/privacy/privacy_screen.dart';
 import 'package:omidvpn/ui/settings/open_source_licenses_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -106,15 +106,7 @@ class SettingsScreen extends ConsumerWidget {
                 }
               },
             ),
-            ListTile(
-              title: Text('License Management'),
-              subtitle: Text('View or update your license'),
-              leading: Icon(Icons.key),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                _showLicenseManagementDialog(context, ref);
-              },
-            ),
+
             ListTile(
               title: Text(lang.privacyPolicy),
               leading: Icon(Icons.privacy_tip),
@@ -184,119 +176,7 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  // Show license management dialog
-  Future<void> _showLicenseManagementDialog(BuildContext context, WidgetRef ref) async {
-    final prefs = await SharedPreferences.getInstance();
-    final currentLicense = prefs.getString('premium_license_key') ?? 'No license set';
-    final continueWithoutLicense = prefs.getBool('continue_without_license') ?? false;
-    
-    String licenseStatus;
-    if (continueWithoutLicense && currentLicense == 'No license set') {
-      licenseStatus = 'Continuing without license (free servers only)';
-    } else if (currentLicense != 'No license set') {
-      licenseStatus = 'License active (must be renewed every 90 days)';
-    } else {
-      licenseStatus = 'No license set';
-    }
-    
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('License Management'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Current Status:'),
-              SizedBox(height: 8),
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  licenseStatus,
-                  style: TextStyle(fontFamily: 'monospace'),
-                ),
-              ),
-              if (currentLicense != 'No license set') ...[
-                SizedBox(height: 16),
-                Text('License Key:'),
-                SizedBox(height: 8),
-                Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          currentLicense,
-                          style: TextStyle(fontFamily: 'monospace'),
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.copy, size: 20),
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: currentLicense));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('License key copied to clipboard')),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Note: Licenses must be renewed every 90 days.',
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ],
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('Edit License'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Navigate to license screen with isEditing parameter
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LicenseScreen(
-                      isEditing: true, // Set isEditing to true
-                      onLicenseValidated: () {
-                        Navigator.of(context).pop();
-                        // Show success message
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('License updated successfully!')),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+
 
   String _getThemeModeText(ThemeMode themeMode, Lang lang) {
     switch (themeMode) {

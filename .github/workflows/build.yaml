@@ -2,15 +2,9 @@ name: Build and Release APKs
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - dev
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag (e.g. v1.0.0) - leave empty to use version from pubspec.yaml'
-        required: false
-        default: ''
-        type: string
 
 permissions:
   contents: write
@@ -34,14 +28,22 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Read version from pubspec.yaml
+        run: |
+          VER=$(grep -m1 '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//' | cut -d+ -f1 | tr -d '\r ')
+          if [[ -z "$VER" ]]; then
+            echo "Could not read version from pubspec.yaml"
+            exit 1
+          fi
+          echo "TAG_NAME=v$VER" >> "$GITHUB_ENV"
+          echo "Using tag: v$VER"
+
       - name: Decode Keystore
         env:
           KEY_STORE: ${{ secrets.KEY_STORE }}
-        run: |
-          echo "$KEY_STORE" | base64 -d > android/app/keystore.jks
-        shell: bash
+        run: echo "$KEY_STORE" | base64 -d > android/app/keystore.jks
 
-      - name: Create keystore properties file
+      - name: Create key.properties
         env:
           KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -53,71 +55,39 @@ jobs:
             echo "keyAlias=$KEY_ALIAS"
             echo "storeFile=keystore.jks"
           } > android/key.properties
-        shell: bash
-
-      - name: Get tag name
-        id: get_tag
-        env:
-          INPUT_TAG: ${{ github.event.inputs.tag }}
-        run: |
-          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
-            TAG="$INPUT_TAG"
-            if [[ -z "$TAG" ]]; then
-              VER=$(grep -m1 '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//' | cut -d+ -f1 | tr -d '\r ')
-              TAG="v$VER"
-            fi
-          else
-            TAG="${GITHUB_REF#refs/tags/}"
-          fi
-          echo "Using tag: $TAG"
-          echo "TAG_NAME=$TAG" >> "$GITHUB_ENV"
-        shell: bash
 
       - name: Get dependencies
         run: flutter pub get
 
       - name: Build universal APK
-        run: flutter build apk --release
-
-      - name: Save universal APK
         run: |
+          flutter build apk --release
           mkdir -p release
           cp build/app/outputs/flutter-apk/app-release.apk release/omidvpn-universal.apk
-        shell: bash
 
       - name: Build split APKs
-        run: flutter build apk --split-per-abi --release
-
-      - name: Rename split APKs
         run: |
+          flutter build apk --split-per-abi --release
           cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk release/omidvpn-armeabi-v7a.apk
           cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk release/omidvpn-arm64-v8a.apk
           cp build/app/outputs/flutter-apk/app-x86_64-release.apk release/omidvpn-x86_64.apk
           ls -la release
-        shell: bash
 
       - name: Create Release
-        id: create_release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG_NAME }}
           target_commitish: ${{ github.sha }}
           name: Release ${{ env.TAG_NAME }}
-          draft: false
-          prerelease: false
           files: |
             release/omidvpn-universal.apk
             release/omidvpn-armeabi-v7a.apk
             release/omidvpn-arm64-v8a.apk
             release/omidvpn-x86_64.apk
           body: |
-            ## Installation
+            ## Download
 
-            ### Download
-
-            | Architecture | Download Link |
-            |-------------|---------------|
-            | Universal   | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/omidvpn-universal.apk"><img src="https://img.shields.io/badge/Android-Universal-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android Universal"></a> |
-            | armeabi-v7a | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/omidvpn-armeabi-v7a.apk"><img src="https://img.shields.io/badge/Android-armeabi--v7a-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android armeabi-v7a"></a> |
-            | arm64-v8a   | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/omidvpn-arm64-v8a.apk"><img src="https://img.shields.io/badge/Android-arm64--v8a-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android arm64-v8a"></a> |
-            | x86_64      | <a href="https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/omidvpn-x86_64.apk"><img src="https://img.shields.io/badge/Android-x86_64-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android x86_64"></a> |
+            - [Universal](https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/omidvpn-universal.apk)
+            - [armeabi-v7a](https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/omidvpn-armeabi-v7a.apk)
+            - [arm64-v8a](https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/omidvpn-arm64-v8a.apk)
+            - [x86_64](https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/omidvpn-x86_64.apk)

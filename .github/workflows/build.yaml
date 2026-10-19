@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to create release for (e.g., v1.0.0)'
-        required: true
-        default: 'v1.0.0'
+        description: 'Tag (e.g. v1.0.0) - leave empty to use version from pubspec.yaml'
+        required: false
+        default: ''
         type: string
 
 permissions:
@@ -55,6 +55,24 @@ jobs:
           } > android/key.properties
         shell: bash
 
+      - name: Get tag name
+        id: get_tag
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            TAG="$INPUT_TAG"
+            if [[ -z "$TAG" ]]; then
+              VER=$(grep -m1 '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//' | cut -d+ -f1 | tr -d '\r ')
+              TAG="v$VER"
+            fi
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "Using tag: $TAG"
+          echo "TAG_NAME=$TAG" >> "$GITHUB_ENV"
+        shell: bash
+
       - name: Get dependencies
         run: flutter pub get
 
@@ -76,18 +94,6 @@ jobs:
           cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk release/omidvpn-arm64-v8a.apk
           cp build/app/outputs/flutter-apk/app-x86_64-release.apk release/omidvpn-x86_64.apk
           ls -la release
-        shell: bash
-
-      - name: Get tag name
-        id: get_tag
-        env:
-          INPUT_TAG: ${{ github.event.inputs.tag }}
-        run: |
-          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
-            echo "TAG_NAME=$INPUT_TAG" >> "$GITHUB_ENV"
-          else
-            echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_ENV"
-          fi
         shell: bash
 
       - name: Create Release

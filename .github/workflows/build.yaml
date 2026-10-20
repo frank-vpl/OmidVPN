@@ -85,9 +85,11 @@ jobs:
             release/omidvpn-arm64-v8a.apk
             release/omidvpn-x86_64.apk
           body: |
-            ## Download
+            ### Download
 
-            - [Universal](https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/omidvpn-universal.apk)
-            - [armeabi-v7a](https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/omidvpn-armeabi-v7a.apk)
-            - [arm64-v8a](https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/omidvpn-arm64-v8a.apk)
-            - [x86_64](https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/omidvpn-x86_64.apk)
+            | Architecture | Download Link |
+            |-------------|---------------|
+            | Universal   | <a href="https://github.com/frank-vpl/OmidVPN/releases/download/${{ env.TAG_NAME }}/omidvpn-universal.apk"><img src="https://img.shields.io/badge/Android-Universal-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android Universal"></a> |
+            | armeabi-v7a | <a href="https://github.com/frank-vpl/OmidVPN/releases/download/${{ env.TAG_NAME }}/omidvpn-armeabi-v7a.apk"><img src="https://img.shields.io/badge/Android-armeabi--v7a-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android armeabi-v7a"></a> |
+            | arm64-v8a   | <a href="https://github.com/frank-vpl/OmidVPN/releases/download/${{ env.TAG_NAME }}/omidvpn-arm64-v8a.apk"><img src="https://img.shields.io/badge/Android-arm64--v8a-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android arm64-v8a"></a> |
+            | x86_64      | <a href="https://github.com/frank-vpl/OmidVPN/releases/download/${{ env.TAG_NAME }}/omidvpn-x86_64.apk"><img src="https://img.shields.io/badge/Android-x86_64-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android x86_64"></a> |
